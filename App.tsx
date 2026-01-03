@@ -4,12 +4,15 @@ import { AppState, GeneratedAssets, ScriptData } from './types';
 import * as gemini from './services/geminiService';
 import { StepIndicator } from './components/StepIndicator';
 import { Player } from './components/Player';
-import { Wand2, FileText, Image as ImageIcon, Mic, AlertCircle, Camera, Sparkles, Waves, Video } from 'lucide-react';
+import { Wand2, FileText, Image as ImageIcon, Mic, AlertCircle, Camera, Sparkles, Waves, Video, Palette, Film, Moon, Box } from 'lucide-react';
 
 const VISUAL_STYLES = [
-  { id: 'realistic', label: 'Cinematic Realism', icon: <Camera size={18} />, prompt: 'Hyper-realistic, 8k, cinematic film stock, sharp focus.' },
-  { id: 'anime', label: 'Makoto Shinkai Style', icon: <Sparkles size={18} />, prompt: 'Breathtaking anime scenery, emotional lighting, vibrant clouds.' },
-  { id: 'cyber', label: 'Neon Cyberpunk', icon: <Wand2 size={18} />, prompt: 'Futuristic, neon-drenched streets, volumetric fog, rainy night.' },
+  { id: 'realistic', label: '실사 시네마틱', icon: <Camera size={18} />, prompt: 'Hyper-realistic, 8k, cinematic film stock, sharp focus, professional photography, natural lighting.' },
+  { id: 'anime', label: '애니메이션', icon: <Sparkles size={18} />, prompt: 'Breathtaking anime scenery, Makoto Shinkai style, emotional lighting, vibrant clouds, detailed backgrounds.' },
+  { id: '3d_pixar', label: '3D 애니메이션', icon: <Box size={18} />, prompt: 'Pixar-style 3D animation, vibrant colors, expressive characters, smooth rendering, family-friendly aesthetic.' },
+  { id: 'vintage', label: '빈티지 필름', icon: <Film size={18} />, prompt: 'Vintage film aesthetic, 35mm grain, warm tones, nostalgic mood, retro color grading, soft focus edges.' },
+  { id: 'watercolor', label: '수채화 아트', icon: <Palette size={18} />, prompt: 'Watercolor painting style, soft brushstrokes, flowing colors, artistic interpretation, dreamy atmosphere.' },
+  { id: 'dark_cinematic', label: '다크 시네마틱', icon: <Moon size={18} />, prompt: 'Dark cinematic mood, dramatic shadows, moody lighting, high contrast, mysterious atmosphere, film noir inspired.' },
 ];
 
 export default function App() {
@@ -152,18 +155,18 @@ export default function App() {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {VISUAL_STYLES.map((style) => (
-                  <button
-                    key={style.id}
-                    onClick={() => setSelectedStyle(style.id)}
-                    className={`p-6 rounded-3xl border transition-all text-left space-y-4 backdrop-blur-xl group ${selectedStyle === style.id ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.3)]' : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'}`}
-                  >
-                    <div className={`p-4 rounded-2xl inline-flex transition-colors ${selectedStyle === style.id ? 'bg-cyan-500 text-white shadow-lg' : 'bg-white/5 group-hover:text-white'}`}>{style.icon}</div>
-                    <div className="font-black text-sm uppercase tracking-widest">{style.label}</div>
-                  </button>
-                ))}
-            </div>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {VISUAL_STYLES.map((style) => (
+                              <button
+                                key={style.id}
+                                onClick={() => setSelectedStyle(style.id)}
+                                className={`p-4 md:p-5 rounded-2xl border transition-all text-left space-y-3 backdrop-blur-xl group ${selectedStyle === style.id ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.3)]' : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'}`}
+                              >
+                                <div className={`p-3 rounded-xl inline-flex transition-colors ${selectedStyle === style.id ? 'bg-cyan-500 text-white shadow-lg' : 'bg-white/5 group-hover:text-white'}`}>{style.icon}</div>
+                                <div className="font-bold text-xs uppercase tracking-wider">{style.label}</div>
+                              </button>
+                            ))}
+                        </div>
           </div>
         )}
 

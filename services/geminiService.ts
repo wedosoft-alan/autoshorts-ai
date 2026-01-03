@@ -63,33 +63,67 @@ export const generateSceneImage = async (stylePrompt: string, scenePrompt: strin
   throw new Error("이미지 생성 실패");
 };
 
-// 3. Generate Video using Veo (Image-to-Video)
-export const generateSceneVideo = async (base64Image: string, prompt: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY }); // 최신 키 반영을 위해 새로 생성
+// Helper function for exponential backoff retry
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 5000
+): Promise<T> => {
+  let lastError: Error | null = null;
   
-  let operation = await ai.models.generateVideos({
-    model: 'veo-3.1-fast-generate-preview',
-    prompt: `Cinematic motion, ${prompt}`,
-    image: {
-      imageBytes: base64Image,
-      mimeType: 'image/png',
-    },
-    config: {
-      numberOfVideos: 1,
-      resolution: '720p',
-      aspectRatio: '9:16'
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error: unknown) {
+      lastError = error as Error;
+      const errorMessage = (error as Error).message || String(error);
+      
+      // Check if it's a 429 rate limit error
+      if (errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED') || errorMessage.includes('rate limit')) {
+        const delay = baseDelay * Math.pow(2, attempt); // Exponential backoff: 5s, 10s, 20s
+        console.warn(`Rate limit hit (attempt ${attempt + 1}/${maxRetries}). Retrying in ${delay / 1000}s...`);
+        await sleep(delay);
+      } else {
+        // For non-rate-limit errors, throw immediately
+        throw error;
+      }
     }
-  });
-
-  while (!operation.done) {
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    operation = await ai.operations.getVideosOperation({ operation: operation });
   }
-
-  const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-  if (!downloadLink) throw new Error("비디오 생성 실패");
   
-  return `${downloadLink}&key=${process.env.API_KEY}`;
+  throw lastError || new Error('Max retries exceeded');
+};
+
+// 3. Generate Video using Veo (Image-to-Video) with retry logic
+export const generateSceneVideo = async (base64Image: string, prompt: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  return retryWithBackoff(async () => {
+    let operation = await ai.models.generateVideos({
+      model: 'veo-3.1-fast-generate-preview',
+      prompt: `Cinematic motion, ${prompt}`,
+      image: {
+        imageBytes: base64Image,
+        mimeType: 'image/png',
+      },
+      config: {
+        numberOfVideos: 1,
+        resolution: '720p',
+        aspectRatio: '9:16'
+      }
+    });
+
+    while (!operation.done) {
+      await sleep(5000);
+      operation = await ai.operations.getVideosOperation({ operation: operation });
+    }
+
+    const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+    if (!downloadLink) throw new Error("비디오 생성 실패");
+    
+    return `${downloadLink}&key=${process.env.API_KEY}`;
+  }, 3, 5000); // 3 retries with 5s base delay
 };
 
 // 4. Generate Audio
