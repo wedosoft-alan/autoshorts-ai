@@ -8,29 +8,29 @@ interface Props {
 
 export const StepIndicator: React.FC<Props> = ({ steps }) => {
   return (
-    <div className="flex w-full justify-between items-center mb-16 px-6 max-w-3xl mx-auto">
+    <div className="flex w-full justify-between items-center mb-8 px-4 max-w-2xl mx-auto">
       {steps.map((step, idx) => (
         <div key={idx} className="flex flex-col items-center relative z-10 group">
           <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 border-2 backdrop-blur-xl ${
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 border-2 ${
               step.isCompleted
-                ? 'bg-cyan-500 border-cyan-400 text-white shadow-[0_0_20px_rgba(34,211,238,0.4)]'
+                ? 'bg-emerald-500 border-emerald-500 text-white'
                 : step.isActive
-                ? 'bg-white/20 border-cyan-400 text-white shadow-[0_0_25px_rgba(34,211,238,0.6)] animate-pulse'
-                : 'bg-white/5 border-white/10 text-cyan-200/30'
+                ? 'bg-indigo-600 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-500'
             }`}
           >
             {step.isCompleted ? (
-              <CheckCircle2 size={24} />
+              <CheckCircle2 size={20} />
             ) : step.isActive ? (
-              <Loader2 size={24} className="animate-spin" />
+              <Loader2 size={20} className="animate-spin" />
             ) : (
-              <Circle size={24} />
+              <Circle size={20} />
             )}
           </div>
           <span
-            className={`absolute -bottom-8 text-xs font-bold tracking-wider uppercase whitespace-nowrap transition-colors duration-500 ${
-              step.isActive || step.isCompleted ? 'text-cyan-300' : 'text-cyan-100/20'
+            className={`absolute -bottom-6 text-xs font-medium whitespace-nowrap transition-colors ${
+              step.isActive || step.isCompleted ? 'text-indigo-300' : 'text-zinc-600'
             }`}
           >
             {step.title}
@@ -38,14 +38,10 @@ export const StepIndicator: React.FC<Props> = ({ steps }) => {
           {/* Connector Line */}
           {idx < steps.length - 1 && (
             <div
-              className={`absolute top-6 left-full w-[calc(100vw/6)] max-w-[100px] h-[3px] -translate-y-1/2 -z-10 transition-all duration-1000 ${
-                step.isCompleted ? 'bg-gradient-to-r from-cyan-400 to-cyan-500' : 'bg-white/5'
+              className={`absolute top-5 left-full w-[calc(100vw/5)] max-w-[80px] h-[2px] -translate-y-1/2 -z-10 transition-colors duration-500 ${
+                step.isCompleted ? 'bg-emerald-500' : 'bg-zinc-800'
               }`}
-            >
-                {step.isCompleted && (
-                    <div className="absolute inset-0 bg-cyan-300 blur-sm"></div>
-                )}
-            </div>
+            />
           )}
         </div>
       ))}
